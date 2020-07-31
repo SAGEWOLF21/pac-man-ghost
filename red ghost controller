@@ -1,0 +1,88 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class Chaser : MonoBehaviour
+{
+    private NavMeshAgent nav;
+    public platerController Pacman;
+    public GameObject safePlace; // create a game object variable for a place where the ghost will run to when there's danger 
+
+    public enum StateType {state_chase, state_RunAway}; // create an enum ... name it what ever you want
+    public StateType currState = StateType.state_chase; //set an instance of that enum.
+    // Start is called before the first frame update
+    void Start()
+    {
+        nav = GetComponent<NavMeshAgent>();
+    }
+
+    private void Update()
+    {//check to see if paccy can eat you
+    }
+
+    // Update is called once per frameYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+    void FixedUpdate()
+    {
+        UpdateState(currState);
+        
+        //nav.SetDestination(Pacman.gameObject.transform.position);
+    }
+    void UpdateState(StateType currentState) // make a method for updating the state 
+    {
+        switch (currState)
+        {
+           case StateType.state_chase:
+                //ourState = currentState.ToString();
+                if(isDangerous())
+                {
+                    ChangeState(StateType.state_RunAway);
+                }
+                Chase();
+                break;
+
+            case StateType.state_RunAway:
+                //ourState = currentState.ToString();
+                if(isDangerous())
+                {
+                    RunAway();
+                    
+                }
+                else
+                {
+                    ChangeState(StateType.state_chase);
+                }
+                
+                break;
+
+            
+        }
+    }
+
+    void RunAway()// for evading when there's danger
+    {
+        nav.SetDestination(safePlace.gameObject.transform.position); // set the destination to the game object variable that we created 
+    }
+
+    bool isDangerous() // make a method to check if the player is dangerous or not
+    {
+        if(Pacman.isPowerUp) // use the bool that you used in your player controller script
+        {
+            return true; // the player is dangerous return true
+        }
+            
+        else
+        {
+            return false; // if not retuen false
+        }
+    }
+    void Chase() // for the ghost that will be chasing pac man
+    {
+        nav.SetDestination(Pacman.gameObject.transform.position);
+    }
+
+    void ChangeState(StateType newState) // for changing the state ... from evade to chase ....from chase to evade
+    {
+        currState = newState;
+    }
+}
