@@ -1,0 +1,135 @@
+//using System.Numerics;
+//using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+
+public class Patroller : MonoBehaviour
+{
+    //for the patroling ghost
+
+    public float speed;
+    private int randomSpot;
+    public Transform moveSpot;
+    public float startWaitTime;
+    private float waitTime;
+    private NavMeshAgent nav;
+    public platerController Pacman;
+    public float minX;
+    public float minZ;
+    public float maxX;
+    public float maxZ;
+
+    public GameObject safePlace;
+
+    public enum StateType {state_chase, state_RunAway};
+    public StateType currState = StateType.state_chase;
+
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        waitTime = startWaitTime;
+        moveSpot.position = new Vector2(Random.Range(minX, maxX), Random.Range(minZ, maxZ));
+        nav = GetComponent<NavMeshAgent>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        /*transform.position = Vector3.MoveTowards(transform.position, moveSpot[randomSpot].position, speed * Time.deltaTime);
+        //nav.SetDestination(moveSpot[randomSpot].gameObject.transform.position);
+        if(Vector3.Distance(transform.position, moveSpot[randomSpot].position) < 0.2f)
+        {
+            if(waitTime <= 0)
+            {
+                randomSpot = Random.Range(0, moveSpot.Length);
+                waitTime = startWaitTime;
+            }
+            else
+            {
+                waitTime -= Time.deltaTime;
+            }
+        }*/
+        
+    }
+    void FixedUpdate()
+    {
+        //nav.SetDestination(moveSpot[randomSpot].gameObject.transform.position);
+        //nav.SetDestination(moveSpot[randomSpot].gameObject.transform.position);
+        UpdateState(currState);
+       
+    }
+
+    void UpdateState(StateType currentState)
+    {
+        switch (currState)
+        {
+           case StateType.state_chase:
+                //ourState = currentState.ToString();
+                if(isDangerous())
+                {
+                    ChangeState(StateType.state_RunAway);
+                }
+                Chase();
+                break;
+
+            case StateType.state_RunAway:
+                //ourState = currentState.ToString();
+                if(isDangerous())
+                {
+                    RunAway();
+                    
+                }
+                else
+                {
+                    ChangeState(StateType.state_chase);
+                }
+                
+                break;
+
+            
+        }
+    }
+    void RunAway()
+    {
+        nav.SetDestination(safePlace.gameObject.transform.position);
+    }
+
+    bool isDangerous()
+    {
+        if(Pacman.isPowerUp)
+        {
+            return true;
+        }
+            
+        else
+        {
+            return false;
+        }
+    }
+    void Chase()
+    {
+        transform.position = Vector3.MoveTowards(transform.position, moveSpot.position, speed * Time.deltaTime);
+        //nav.SetDestination(moveSpot[randomSpot].gameObject.transform.position);
+        if(Vector3.Distance(transform.position, moveSpot.position) < 0.2f)
+        {
+            if(waitTime <= 0)
+            {
+                moveSpot.position = new Vector2(Random.Range(minX, maxX), Random.Range(minZ, maxZ));
+                waitTime = startWaitTime;
+            }
+            else
+            {
+                waitTime -= Time.deltaTime;
+            }
+        }
+        nav.SetDestination(moveSpot.gameObject.transform.position);
+    }
+
+    void ChangeState(StateType newState)
+    {
+        currState = newState;
+    }
+}
